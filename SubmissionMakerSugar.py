@@ -29,10 +29,13 @@ import scipy
 
 def Compressor(Input):
     Output = [];
-    for pixel in range(0, len(Input)):
-        #print(Input[pixel]);
-        if (Input[pixel] >= .2):
-            Output.append(pixel);
+    for pixel in range(0, Input.shape[1]):
+        print(pixel)
+        for value in range(0, Input.shape[0]):
+            print(value)
+            if (Input[value, pixel] >= .2):
+                Output.append(pixel*Input.shape[0]+value);
+            #print(pixel*Input.shape[2]+value)
             #print(Input[pixel])
     print(len(Output))
     print(Output)
@@ -51,7 +54,7 @@ def Compressor(Input):
             x=0
             runtime  = 1;
     if len(OutputPix) < 10:
-        OutputPix = " "
+        OutputPix = "1 1"
     if pixel == len(Output) -1 and len(OutputPix) >= 10:
         OutputPix = OutputPix + str(runtime)
     #print(Input)
@@ -61,11 +64,11 @@ os.chdir('/depot/wwtung/data/Brittoa/Kaggle/understanding_cloud_organization')
 Optimizer = keras.optimizers.Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, amsgrad=False)
 
 # load json and create model Sugar
-json_file = open('Sugarmodel6.json', 'r')
+json_file = open('Sugar3000Model.json', 'r')
 Sugar_model_json = json_file.read()
 json_file.close()
 Sugar_model = model_from_json(Sugar_model_json)
-Sugar_model.load_weights("Sugarmodel6.h5")
+Sugar_model.load_weights("Sugar3000Model10.h5")
 print("Loaded model from disk: Sugar")
  
 # evaluate loaded model on test data
@@ -77,10 +80,10 @@ Submission = pd.read_csv("Submission.csv")
 
 for Image in range(0,int(round(len(Images)))):
     print(Image)
-    dataInput =cv2.imread('test_images/' + Images[Image],0)
-    dataInput = np.array(cv2.resize(dataInput, (525, 350)))
+    dataInput =cv2.imread('test_images/' + Images[Image])
+    dataInput = np.array(cv2.resize(dataInput, (512, 256)))
     dataInput = dataInput / 255
-    dataInput = dataInput.reshape(-1, 350,525, 1)
+    dataInput = dataInput.reshape(-1, 256,512,3)
     SugarPredict = Sugar_model.predict(dataInput)
     SugarPredict = Compressor(SugarPredict[0])
     Submission.loc[(4*Image)+3, "EncodedPixels"] =SugarPredict
